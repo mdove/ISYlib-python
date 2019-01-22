@@ -17,6 +17,7 @@ else:
     import urllib as URL
 # import re
 from pprint import pprint
+import time
 
 #__all__ = ['IsyUtil', 'IsySubClass' ]
 __all__ = ['format_node_addr']
@@ -119,33 +120,52 @@ class IsyUtil(object):
         req = URL.Request(xurl)
         # print("_getXMLetree : self._opener.open ")
         # HTTPError
-        try:
-            res = self._opener.open(req, None, timeout)
-            data = res.read()
-            # print("res.getcode() ", res.getcode(), len(data))
-            res.close()
-        except URL.HTTPError, e:
-            self.error_str = str("Reponse Code : {0} : {1}" ).format(e.code, xurl)
-            return None
 
-        if len(self.error_str) : self.error_str = ""
-        if self.debug & 0x200:
-            print res.info()
-            print data
-        et = None
-        if len(data):
+        #
+        # MDove attempt to deal with ISY JSON data coming back truncated - perform a re-try
+        #
+        loop_count = 0
+        while True:
+            loop_count += 1
             try:
-                et = ET.fromstring(data)
-            except ET.ParseError as e:
-                print "Etree ParseError "
-                print "data = ", data,
-                print "e.message = ", e.message
-                # raise
-            finally:
-                return et
+                res = self._opener.open(req, None, timeout)
+                data = res.read()
+                # print("res.getcode() ", res.getcode(), len(data))
+                res.close()
 
+                et = None
+                if len(data):
+                    try:
+                        et = ET.fromstring(data)
+                        if (loop_count > 1): print "*** SUCCESS: Breaking out loop count " + str(loop_count) + " on " + xurl + " ***"
+                        loop_count = 0
+                        break;
+                    except ET.ParseError as e:
+                        print "Etree ParseError "
+                        # print "data = ", data,
+                        print "e.message = ", e.message
+                        if (loop_count == 10): break
+                        # raise
+                else:
+                    print "*** NO data returned from URL read of" + req
+                    if (loop_count == 10): break
+
+            except URL.HTTPError, e:
+                self.error_str = str("Reponse Code : {0} : {1}" ).format(e.code, xurl)
+                print "*** URL open error: " + self.error_str
+                if (loop_count == 10): break
+
+            #
+            # In the case we fail, sleep 5 seconds before attempting again
+            #
+            time.sleep(5)
+
+        if (loop_count != 0): print "*** FAILING with loop count " + str(loop_count) + " on " + xurl + " ***"
+        if (loop_count == 0):
+            self.error_str = ""
+            return et
         else:
-                return None
+            return None
 
     def _gensoap(self, cmd, **kwargs):
 
