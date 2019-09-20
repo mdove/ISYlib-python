@@ -137,14 +137,20 @@ class IsyUtil(object):
                 if len(data):
                     try:
                         et = ET.fromstring(data)
-                        if (loop_count > 1): print "*** SUCCESS: Breaking out loop count " + str(loop_count) + " on " + xurl + " ***"
+                        #
+                        # Silence this for now so we don't generate email on success
+                        #
+                        # if (loop_count > 1): print "*** SUCCESS: Breaking out loop count " + str(loop_count) + " on " + xurl + " ***"
                         loop_count = 0
                         break;
                     except ET.ParseError as e:
-                        print "Etree ParseError "
+                        #print "Etree ParseError "
                         # print "data = ", data,
-                        print "e.message = ", e.message
-                        if (loop_count == 10): break
+                        #print "e.message = ", e.message
+                        if (loop_count == 10): 
+                            print "Etree ParseError "
+                            print "e.message = ", e.message
+                            break
                         # raise
                 else:
                     print "*** NO data returned from URL read of" + req
