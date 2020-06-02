@@ -146,7 +146,7 @@ class _IsyNodeBase(IsySubClass):
         if 'members' in self._mydict:
             # print("mydict['members'] : ", type(self._mydict['members']) )
             if type(self._mydict['members']) == 'dict':
-                return self._mydict['members'].keys()
+                return list(self._mydict['members'].keys())
             # if type(self._mydict['members']) == 'list':
             return self._mydict['members'][:]
         return [ ]
@@ -309,7 +309,7 @@ class IsyNode(_IsyNodeBase):
 #            if "node-flag" in self._mydict:
 #                self.update()
 
-        self._hash = hashlib.sha256(self._mydict["address"])
+        self._hash = hashlib.sha256(self._mydict["address"].encode())
 
         if self.debug & 0x01:
             print("Init Node : \"" + self._mydict["address"] + \
@@ -595,7 +595,7 @@ class IsyScene(_IsyNodeBase):
     def _getmembers(self):
         """ List members of a scene or group """
         if "members" in self._mydict:
-            return self._mydict["members"].keys()
+            return list(self._mydict["members"].keys())
         else:
             return None
     members = property(_getmembers)

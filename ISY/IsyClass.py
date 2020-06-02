@@ -60,6 +60,7 @@ if sys.hexversion < 0x3000000:
 else:
     import urllib as URL
     from urllib.request import HTTPPasswordMgrWithDefaultRealm
+    from urllib.error import URLError
 
 
 # import netrc
@@ -289,10 +290,10 @@ class Isy(IsyUtil):
         if self.faststart < 2:
             try:
                 self.load_conf()
-            except URL.URLError as e:
+            except URLError as e:
                 print("Unexpected error:", sys.exc_info()[0])
-                print 'Problem connecting with ISY device :', self.addr
-                print e
+                print('Problem connecting with ISY device :', self.addr)
+                print(e)
                 raise IsyCommunicationError(e)
 
 
@@ -374,12 +375,12 @@ class Isy(IsyUtil):
         from threading import Thread
 
         if (self.debug & 0x40):
-            print "start_event_thread"
+            print("start_event_thread")
 
         # if thread already runing we should update mask
         if hasattr(self, 'event_thread') and isinstance(self.event_thread, Thread):
             if self.event_thread.is_alive():
-                print "Thread already running ?"
+                print("Thread already running ?")
                 return
 
         #st = time.time()
@@ -489,9 +490,9 @@ class Isy(IsyUtil):
                 event_targ = prog_id
 
                 if (self.debug & 0x40):
-                    print "Prog Change/Updated :\t{0}".format(evnt_dat['eventInfo']['id'])
-                    print "Prog Id :\t", prog_id
-                    print "evnt_dat :\t", evnt_dat
+                    print("Prog Change/Updated :\t{0}".format(evnt_dat['eventInfo']['id']))
+                    print("Prog Id :\t", prog_id)
+                    print("evnt_dat :\t", evnt_dat)
 
                 if self._progdict is None:
                     self.load_prog(prog_id)
@@ -819,8 +820,8 @@ class Isy(IsyUtil):
                     try:
                         cb[0](evnt_dat, *cb[1])
                     except Exception as e:
-                        print "e=",e
-                        print "sys.exc_info()=",sys.exc_info()
+                        print("e=",e)
+                        print("sys.exc_info()=",sys.exc_info())
                         print("Callback Error:", sys.exc_info()[0])
 
                 else:
@@ -943,19 +944,19 @@ class Isy(IsyUtil):
             num = str(num)
 
         if self.debug & 0x100:
-            print "using num : ", num
+            print("using num : ", num)
 
         newcam = {'brand': brand, 'ip': ip, 'model': model, 'name': name, 'pass': passwd, 'port': port, 'user': user}
 
         camlist[num] = newcam
 
         if self.debug & 0x100:
-            print "webcam_add : ",
+            print("webcam_add : ", end="")
             pprint.pprint(camlist)
 
         if num > camlist['lastId']:
             if self.debug & 0x100:
-                print "new lastId = ", num, ":", camlist['lastId']
+                print("new lastId = ", num, ":", camlist['lastId'])
             camlist['lastId'] = num
 
         return self._webcam_set(camlist)
@@ -1134,8 +1135,8 @@ class Isy(IsyUtil):
         (idtype, nid) = self._node_get_id(nodeid)
         if nid is None:
             raise IsyValueError("unknown node/obj : " + nodeid)
-        print "nodeid ", nodeid
-        print "nid ", nid
+        print("nodeid ", nodeid)
+        print("nid ", nid)
         return self.soapcomm("RenameNode", id=nid, name=nname)
 
 #    def node_new(self, sid, nname):
@@ -1891,7 +1892,7 @@ class Isy(IsyUtil):
         if self.debug & 0x02 : print("xurl = " + xurl)
         resp = self._getXMLetree(xurl)
         if resp is None:
-            print 'The server couldn\'t fulfill the request.'
+            print('The server couldn\'t fulfill the request.')
             raise IsyResponseError("Batch")
         else:
             #self._printXML(resp)
@@ -2095,7 +2096,7 @@ class Isy(IsyUtil):
     def __del__(self):
 
         if self.debug & 0x80:
-            print "__del__ ", self.__repr__()
+            print("__del__ ", self.__repr__())
 
         #if isinstance(self._isy_event, ISYEvent):
         #    #ISYEvent._stop_event_loop()

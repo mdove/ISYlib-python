@@ -53,7 +53,7 @@ class ISYEvent(object):
         self.process_func = kwargs.get("process_func", _print_event)
         self.process_func_arg = kwargs.get("process_func_arg", None)
 
-	print "_print_event", _print_event
+        print("_print_event", _print_event)
         if self.process_func:
             assert isinstance(self.process_func, collections.Callable), \
                     "process_func Arg must me callable"
@@ -70,8 +70,8 @@ class ISYEvent(object):
     def set_process_func(self, func, arg):
 
         if func:
-	    # if self.debug & 0x01:
-	    print "set_process_func", func
+        # if self.debug & 0x01:
+            print("set_process_func", func)
             self.process_func = func
             assert isinstance(self.process_func, collections.Callable), \
                     "process_func Arg must me callable"
@@ -124,7 +124,7 @@ class ISYEvent(object):
 
         if addr in self.connect_list:
             # print "addr :", addr
-            print "connect_list :", self.connect_list
+            print("connect_list :", self.connect_list)
             warnstr = str("Duplicate addr : {0}").format(addr)
             warnings.warn(warnstr, RuntimeWarning)
             return
@@ -170,7 +170,7 @@ class ISYEvent(object):
         """
         #print "-"
 
-        l = conn_obj.event_rf.readline()
+        l = conn_obj.event_rf.readline().decode()
         if len(l) == 0:
             raise IOError("bad read form socket")
             # conn_obj._opensock(self.authtuple[0])
@@ -180,14 +180,14 @@ class ISYEvent(object):
             print("Stream Sync Error")
             for x in range(10):
                 print(x, " ")
-                l = conn_obj.event_rf.readline()
+                l = conn_obj.event_rf.readline().decode()
                 if (l[:5] == 'POST '):
                     break
             else:
                 raise IOError("can not resync event stream")
 
         while 1:
-            l = conn_obj.event_rf.readline()
+            l = conn_obj.event_rf.readline().decode()
             if len(l) == 2:
                 break
             # print "HEADER : ", l
@@ -201,7 +201,7 @@ class ISYEvent(object):
         data_remaining = data_len
         L = []
         while data_remaining:
-            chunk = conn_obj.event_rf.read(data_remaining)
+            chunk = conn_obj.event_rf.read(data_remaining).decode()
             if not chunk:
                 break
             L.append(chunk)
@@ -229,9 +229,9 @@ class ISYEvent(object):
         try:
             ev =  ET.fromstring(data)
         except ET.ParseError as e:
-            print "Etree ParseError "
-            print "data = ", data,
-            print "e.message = ", e.message
+            print("Etree ParseError ")
+            print("data = ", data, end="")
+            print("e.message = ", e.message)
             raise
 
         #print "_process_event ", data, "\n\n"
@@ -399,9 +399,9 @@ class ISYEvent(object):
                     d, x = self._process_event(rs)
                     # print "d :", type(d)
                     if self.debug & 0x0400:
-                        print "---------"
-                        print "event_loop= ", x
-                        print "event_loop= ", d
+                        print("---------")
+                        print("event_loop= ", x)
+                        print("event_loop= ", d)
                         sys.stdout.flush()
                     if ignorelist:
                         if d["control"] in ignorelist:
@@ -549,13 +549,13 @@ class ISYEventConnection(object):
 
         # <ns0:Unsubscribe><SID>uuid:168</SID><flag></flag></ns0:Unsubscribe>
         post_body = "<s:Envelope><s:Body>" \
-            "<u:Subscribe xmlns:u=\"urn:udicom:service:X_Insteon_Lighting_Service:1\">" \
+            + "<u:Subscribe xmlns:u=\"urn:udicom:service:X_Insteon_Lighting_Service:1\">" \
             + "<reportURL>REUSE_SOCKET</reportURL>" \
             + "<duration>infinite</duration>" \
-            "</u:Subscribe></s:Body></s:Envelope>"
+            + "</u:Subscribe></s:Body></s:Envelope>"
             # "\r\n\r\n"
 
-        base64pass = base64.encodestring('%s:%s' % (self.authtuple[1], self.authtuple[2]))[:-1]
+        base64pass = base64.encodestring(('%s:%s' % (self.authtuple[1], self.authtuple[2])).encode())[:-1].decode()
         post_head = "POST /services HTTP/1.1\r\n" \
             + "Host: {0}:80\r\n".format(self.authtuple[0]) \
             + "Authorization: Basic {0}\r\n".format(base64pass) \
@@ -566,10 +566,10 @@ class ISYEventConnection(object):
 
         post = post_head + post_body
 
-        self.event_wf.write(post)
+        self.event_wf.write(post.encode())
         self.event_wf.flush()
 
-        l = self.event_rf.readline()
+        l = self.event_rf.readline().decode()
         if (l[:5] != 'HTTP/'):
             raise ValueError(l)
 
@@ -577,7 +577,7 @@ class ISYEventConnection(object):
             raise ValueError(l)
 
         while 1:
-            l = self.event_rf.readline()
+            l = self.event_rf.readline().decode()
             if len(l) == 2:
                 break
             if l[:15] == "Content-Length:":
@@ -585,7 +585,7 @@ class ISYEventConnection(object):
                 data_len = int(l.split(':')[1])
 
 
-        reply = self.event_rf.read(data_len)
+        reply = self.event_rf.read(data_len).decode()
         if self.debug & 0x01:
             print("_subscribe reply = '", reply, "'")
 

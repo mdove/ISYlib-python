@@ -116,7 +116,7 @@ def net_resource_ids(self):
     if not self._net_resource:
         self.load_net_resource()
 
-    return self._net_resource.keys()
+    return list(self._net_resource.keys())
 
 
 def net_resource_names(self):
@@ -130,7 +130,7 @@ def net_resource_names(self):
     if not self._net_resource:
         self.load_net_resource()
 
-    return self.name2net_res.keys()
+    return list(self.name2net_res.keys())
 
 
 def net_resource_iter(self):
@@ -140,7 +140,7 @@ def net_resource_iter(self):
     """
     if not self._net_resource:
         self.load_net_resource()
-    for k, v in self._net_resource.items():
+    for k, v in list(self._net_resource.items()):
         yield v
 
 
@@ -207,7 +207,7 @@ def net_wol_names(self):
     """
     if not self._wolinfo:
         self.load_net_wol()
-    return self.name2wol.keys()
+    return list(self.name2wol.keys())
 
 def net_wol_ids(self):
     """ method to retrieve a list of WOL ids
@@ -218,7 +218,7 @@ def net_wol_ids(self):
     """
     if not self._wolinfo:
         self.load_net_wol()
-    return self._wolinfo.keys()
+    return list(self._wolinfo.keys())
 
 
 def net_wol_iter(self):
@@ -229,7 +229,7 @@ def net_wol_iter(self):
     if not self._wolinfo:
         self.load_net_wol()
 
-    for v in self._wolinfo.values():
+    for v in list(self._wolinfo.values()):
         yield v
 
 

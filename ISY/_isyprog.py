@@ -44,7 +44,7 @@ def load_prog(self, progid=None):
 
     for pg in prog_tree.iter("program"):
         pdict = dict()
-        for k, v in pg.items():
+        for k, v in list(pg.items()):
             pdict[k] = v
         for pe in list(pg):
             pdict[pe.tag] = pe.text
@@ -118,7 +118,7 @@ def _prog_get_id(self, pname):
     """
     if isinstance(pname, IsyProgram):
          return pname["id"]
-    if isinstance(pname, (int, long)):
+    if isinstance(pname, int):
         p = "{0:04X}".format(pname)
     else:
         p = str(pname).strip()
@@ -159,7 +159,7 @@ def prog_addrs(self):
     """
     if not self._progdict:
         self.load_prog()
-    return self._progdict.viewkeys()
+    return self._progdict.keys()
 
 def prog_get_src(self, pname):
 

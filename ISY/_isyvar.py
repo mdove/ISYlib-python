@@ -4,17 +4,23 @@ This is a subfile for IsyClass.py
 These funtions are accessable via the Isy class opj
 """
 
-__author__ = 'Peter Shipley <peter.shipley@gmail.com>'
+__author__ = "Peter Shipley <peter.shipley@gmail.com>"
 __copyright__ = "Copyright (C) 2015 Peter Shipley"
 __license__ = "BSD"
 
 
 import xml.etree.ElementTree as ET
 from ISY.IsyVarClass import IsyVar
-from ISY.IsyExceptionClass import IsyError, IsyInternalError, IsyValueError, \
-                            IsyResponseError, IsyPropertyError, \
-                            IsyLookupError, \
-                            IsyRuntimeWarning, IsyWarning
+from ISY.IsyExceptionClass import (
+    IsyError,
+    IsyInternalError,
+    IsyValueError,
+    IsyResponseError,
+    IsyPropertyError,
+    IsyLookupError,
+    IsyRuntimeWarning,
+    IsyWarning,
+)
 from warnings import warn
 
 
@@ -33,14 +39,14 @@ def load_vars(self):
     """
     if self.debug & 0x01:
         print("load_vars")
-    if not hasattr(self, '_vardict') or not isinstance(self._vardict, dict):
+    if not hasattr(self, "_vardict") or not isinstance(self._vardict, dict):
         self._vardict = dict()
 
     # if not hasattr(self, '_name2id') or not isinstance(self._name2id, dict):
     self._name2id = dict()
 
     self.name2var = dict()
-    for t in ['1', '2']:
+    for t in ["1", "2"]:
         vinfo = self._getXMLetree("/rest/vars/get/" + t)
         for v in vinfo.iter("var"):
 
@@ -67,25 +73,28 @@ def load_vars(self):
         for v in vinfo.iter("e"):
             # self._printinfo(v, "e :")
             vid = t + ":" + v.attrib["id"]
-            self._vardict[vid]['name'] = v.attrib['name']
+            self._vardict[vid]["name"] = v.attrib["name"]
             self._vardict[vid]["id"] = vid
             self._vardict[vid]["type"] = t
 
-            n = v.attrib['name']
+            n = v.attrib["name"]
             if n in self.name2var:
-                warn("Duplicate Var name (0) : (1) (2)".format(n,
-                            vid, self.name2var[n]), IsyRuntimeWarning)
+                warn(
+                    "Duplicate Var name (0) : (1) (2)".format(n, vid, self.name2var[n]),
+                    IsyRuntimeWarning,
+                )
             else:
                 self.name2var[n] = vid
 
             # name2id to replace name2var as a global lookup table
             if n in self._name2id:
-                print("Dup name2id : \"" + n + "\" : " + vid)
+                print('Dup name2id : "' + n + '" : ' + vid)
                 print("\tname2id ", self._name2id[n])
             else:
                 self._name2id[n] = ("var", vid)
 
     # self._printdict(self._vardict)
+
 
 ##    def set_var_value(self, vname, val, init=0):
 #        if self.debug & 0x01:
@@ -128,10 +137,10 @@ def var_refresh_value(self, var):
     if not varid:
         raise IsyPropertyError("var_refresh: unknown var : " + str(var))
 
-    a = varid.split(':')
+    a = varid.split(":")
     xurl = "/rest/vars/get/" + a[0] + "/" + a[1]
     resp = self._getXMLetree(xurl)
-    print "resp", resp
+    print("resp", resp)
 
     if resp is None:
         raise IsyPropertyError("var_refresh: error geting var : " + str(var))
@@ -146,9 +155,9 @@ def var_refresh_value(self, var):
     return None
 
 
-
 def _var_refresh_value(self, var):
     pass
+
 
 def var_set_value(self, var, val, prop="val"):
     """ Set var value by name or ID
@@ -179,7 +188,7 @@ def var_set_value(self, var, val, prop="val"):
 
     if not varid:
         raise IsyPropertyError("var_set_value: unknown var : " + str(var))
-    if prop not in ['init', 'val']:
+    if prop not in ["init", "val"]:
         raise IsyPropertyError("var_set_value: unknown propery : " + str(prop))
     self._var_set_value(varid, val, prop)
 
@@ -188,17 +197,20 @@ def _var_set_value(self, varid, val, prop="val"):
     """ Set var value by name or ID """
     if self.debug & 0x04:
         print("_var_set_value ", str(val), " : ", prop)
-    a = varid.split(':')
+    a = varid.split(":")
     if prop == "init":
         xurl = "/rest/vars/init/" + a[0] + "/" + a[1] + "/" + str(val)
     else:
         xurl = "/rest/vars/set/" + a[0] + "/" + a[1] + "/" + str(val)
-    if self.debug & 0x02 : print("xurl = " + xurl)
+    if self.debug & 0x02:
+        print("xurl = " + xurl)
     resp = self._getXMLetree(xurl)
 
     # pprint.pprint(resp)
-    if resp is None or resp.attrib["succeeded"] != 'true':
-        raise IsyResponseError("Var Value Set error : var={!s} prop={!s} val={!s}".format(varid, prop, val))
+    if resp is None or resp.attrib["succeeded"] != "true":
+        raise IsyResponseError(
+            "Var Value Set error : var={!s} prop={!s} val={!s}".format(varid, prop, val)
+        )
 
     #
     # hasattr(self, '_vardict'):
@@ -223,10 +235,10 @@ def var_get_value(self, var, prop="val"):
     varid = self._var_get_id(var)
     if not varid:
         raise IsyLookupError("var_set_value: unknown var : " + str(var))
-    if prop not in ['init', 'val']:
+    if prop not in ["init", "val"]:
         raise TypeError("var_set_value: unknown propery : " + str(prop))
     if varid in self._vardict:
-        return(self._vardict[varid][prop])
+        return self._vardict[varid][prop]
 
 
 # to conform with node and prog API calls
@@ -251,7 +263,7 @@ def var_names(self):
     if not self._vardict:
         self.load_vars()
 
-    return self.name2var.viewkeys()
+    return self.name2var.keys()
 
 
 def get_var(self, vname):
@@ -275,13 +287,13 @@ def get_var(self, vname):
             # print("not varid in self.varCdict:")
             # self._printdict(self._vardict[varid])
             self.varCdict[varid] = IsyVar(self, self._vardict[varid])
-        #self._printdict(self._vardict)
+        # self._printdict(self._vardict)
         # print("return : ",)
-        #self._printdict(self.varCdict[varid])
+        # self._printdict(self.varCdict[varid])
         return self.varCdict[varid]
     else:
         if self.debug & 0x01:
-            print("Isy get_var no var : \"%s\"" % varid)
+            print('Isy get_var no var : "%s"' % varid)
         raise IsyLookupError("no var : " + vname + " : " + str(varid))
 
 
@@ -318,7 +330,7 @@ def var_get_type(self, var):
     """
     v = self._var_get_id(var)
     if v in self._vardict:
-        vtype, vid = str(v).split(':')
+        vtype, vid = str(v).split(":")
         if vtype == "1":
             return "Integer"
         elif vtype == "2":
@@ -338,7 +350,7 @@ def var_iter(self, vartype=0):
     if not self._vardict:
         self.load_vars()
 
-    k = self._vardict.keys()
+    k = list(self._vardict.keys())
     for v in k:
         if vartype:
             vartype = str(vartype)
@@ -349,7 +361,9 @@ def var_iter(self, vartype=0):
 
 
 def var_new(self, varname=None, varid=None, vartype="int", value=None, initval=None):
-    return self.var_add(varid=varid, varname=varname, vartype=vartype, value=value, initval=initval)
+    return self.var_add(
+        varid=varid, varname=varname, vartype=vartype, value=value, initval=initval
+    )
 
 
 def var_add(self, varname=None, varid=None, vartype="int", value=None, initval=None):
@@ -380,7 +394,6 @@ def var_add(self, varname=None, varid=None, vartype="int", value=None, initval=N
         elif not (isinstance(value, str) and value.isdigit()):
             raise IsyValueError("var_add: value must be an int or None")
 
-
     if initval is not None:
         if isinstance(initval, int):
             initval = str(initval)
@@ -398,7 +411,7 @@ def var_add(self, varname=None, varid=None, vartype="int", value=None, initval=N
         # create a dict with all used Ids, then loop till ya find a unused one
         tdict = dict()
         for vdat in var_et.iter("e"):
-            tdict[vdat.attrib['id']] = 1
+            tdict[vdat.attrib["id"]] = 1
         maxid = tdict.__len__() + 5
         varid = -1
         for i in range(1, maxid):
@@ -414,22 +427,21 @@ def var_add(self, varname=None, varid=None, vartype="int", value=None, initval=N
         elif not (isinstance(varid, str) and varid.isdigit()):
             raise IsyValueError("var_add: varid must be an int or None")
 
-
     vaddr = vtype + ":" + varid
 
     # now that we have a avalible ID number, create the entery
-    ET.SubElement(var_et, "e", {'id': varid, 'name': varname})
+    ET.SubElement(var_et, "e", {"id": varid, "name": varname})
 
-    new_var_data = ET.tostring(var_et, method='html')
+    new_var_data = ET.tostring(var_et, method="html")
     if self.debug & 0x01:
-        print "new_var_data=", new_var_data
+        print("new_var_data=", new_var_data)
 
     # This is stupid but method='html' lowercases closing tags
     # regardless of the opening tag case.
     new_var_data = new_var_data.replace("</clist>", "</CList>")
 
     if self.debug & 0x01:
-        print "new_var_data=", new_var_data
+        print("new_var_data=", new_var_data)
 
     r = self._sendfile(data=new_var_data, filename=varpath, load="y")
 
@@ -443,22 +455,21 @@ def var_add(self, varname=None, varid=None, vartype="int", value=None, initval=N
             newv = dict()
             self._vardict[vaddr] = newv
 
-        newv['id'] = vaddr
-        newv['type'] = vtype
-        newv['name'] = varname
+        newv["id"] = vaddr
+        newv["type"] = vtype
+        newv["name"] = varname
 
-        newv['ts'] = time.strftime("%Y%m%d %H:%M:%S", time.localtime()),
+        newv["ts"] = (time.strftime("%Y%m%d %H:%M:%S", time.localtime()),)
 
         if initval is None:
-            newv['init'] = 0
+            newv["init"] = 0
         else:
-            newv['init'] = value
+            newv["init"] = value
 
         if value is None:
-            newv['val'] = 0
+            newv["val"] = 0
         else:
-            newv['val'] = value
-
+            newv["val"] = value
 
     # store values ( if given )
     if value is not None:
@@ -486,13 +497,13 @@ def var_delete(self, varid=None):
     myvarid = self._var_get_id(varid)
 
     if isinstance(varid, list):
-        for i in range(len(varid)) :  # make sure they are all strings
+        for i in range(len(varid)):  # make sure they are all strings
             if not isinstance(varid[i], str):
                 varid[i] = str(varid[i])
     else:  # if not a list make is a list
         varid = [str(varid)]
 
-    dellist= {"1" : [], "2" :  []}
+    dellist = {"1": [], "2": []}
 
     for v in varid:
         vtype, vid = v.split(":")
@@ -518,15 +529,12 @@ def _var_delete(self, varid=None, vartype=None):
     if varid is None:
         raise IsyValueError("varid arg is missing")
     elif isinstance(varid, list):
-        for i in range(len(varid)) :  # make sure they are all strings
+        for i in range(len(varid)):  # make sure they are all strings
             varid[i] = str(varid[i])
     else:  # if not a list make is a list
         varid = [str(varid)]
-
-
-#    if isinstance(varid, str) and not val.isdigit()):
-#       raise IsyValueError("Invalid var id missing")
-
+    #    if isinstance(varid, str) and not val.isdigit()):
+    #       raise IsyValueError("Invalid var id missing")
 
     vartype = str(vartype)
     if vartype == "integer" or vartype == "1":
@@ -543,7 +551,7 @@ def _var_delete(self, varid=None, vartype=None):
 
     var_et = ET.fromstring(result)
 
-#$      varid=str(varid)
+    # $      varid=str(varid)
 
     # create a list from the iter(element) to tree can be modified
     for v in list(var_et.iter("e")):
@@ -584,12 +592,12 @@ def var_rename(self, var=None, varname=None):
     r = self._var_rename(vartype=v[0], varid=v[1], varname=varname)
 
     if varid in self._vardict:
-        self._vardict[varid]['name'] = varname
+        self._vardict[varid]["name"] = varname
         self.name2var[varname] = vid
 
-#    if varname in self._name2id:
-#       if self._name2id[varname][0] == "var":
-#           self._name2id[varname] = ("var", varid)
+    #    if varname in self._name2id:
+    #       if self._name2id[varname][0] == "var":
+    #           self._name2id[varname] = ("var", varid)
 
     return r
 
@@ -608,11 +616,8 @@ def _var_rename(self, vartype=None, varid=None, varname=None):
 
     elif not isinstance(varid, str):
         varid = str(varid)
-
-
-#    if isinstance(varid, str) and not val.isdigit()):
-#       raise IsyValueError("Invalid var id missing")
-
+    #    if isinstance(varid, str) and not val.isdigit()):
+    #       raise IsyValueError("Invalid var id missing")
 
     vartype = str(vartype)
     if vartype == "integer" or vartype == "1":
@@ -647,6 +652,7 @@ def _var_rename(self, vartype=None, varid=None, varname=None):
 #
 if __name__ == "__main__":
     import __main__
+
     print(__main__.__file__)
 
     print("syntax ok")

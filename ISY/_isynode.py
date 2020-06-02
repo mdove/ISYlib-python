@@ -148,12 +148,12 @@ def _gen_folder_list(self, nodeinfo, reload=0):
             continue
 
 
-        for k, v in fold.items():
+        for k, v in list(fold.items()):
             fprop[fold.tag + "-" + k] = v
         for child in list(fold):
             fprop[child.tag] = child.text
             if child.attrib:
-                for k, v in child.items():
+                for k, v in list(child.items()):
                     fprop[child.tag + "-" + k] = v
         # self._nodefolder[fprop["address"]] = fprop
         n = fprop["name"].upper()
@@ -186,12 +186,12 @@ def _gen_nodegroups(self, nodeinfo, reload=0):
             continue
 
 
-        for k, v in grp.items():
+        for k, v in list(grp.items()):
             gprop[grp.tag + "-" + k] = v
         for child in list(grp):
             if child.tag == "parent":
                 gprop[child.tag] = child.text
-                for k, v in child.items():
+                for k, v in list(child.items()):
                     gprop[child.tag + "-" + k] = v
             elif child.tag == "members":
                 glist = dict()
@@ -201,7 +201,7 @@ def _gen_nodegroups(self, nodeinfo, reload=0):
             else:
                 gprop[child.tag] = child.text
                 if child.attrib:
-                    for k, v in child.items():
+                    for k, v in list(child.items()):
                         gprop[child.tag + "-" + k] = v
 
         if "address" in gprop:
@@ -244,21 +244,21 @@ def _gen_nodedict(self, nodeinfo, reload=0):
             continue
 
 
-        for k, v in inode.items():
+        for k, v in list(inode.items()):
             idict[inode.tag + "-" + k] = v
         for child in list(inode):
             # self._printinfo(child, "\tchild")
 
             if child.tag == "parent":
                 idict[child.tag] = child.text
-                for k, v in child.items():
+                for k, v in list(child.items()):
                     idict[child.tag + "-" + k] = v
             # special case where ST, OL, and RR
             elif child.tag == "property":
                 if child.tag not in idict:
                     idict[child.tag] = dict()
                 nprop = dict()
-                for k, v in child.items():
+                for k, v in list(child.items()):
                     # print("child.items", k, v)
                     nprop[k] = v
                 if "id" in nprop:
@@ -326,7 +326,7 @@ def node_addrs(self):
     """
     if not self._nodedict:
         self.load_nodes()
-    return self._nodedict.viewkeys()
+    return self._nodedict.keys()
 
 def scene_addrs(self):
     """ access method for scene addresses
@@ -334,7 +334,7 @@ def scene_addrs(self):
     """
     if not self._nodegroups:
         self.load_nodes()
-    return self._nodegroups.viewkeys()
+    return self._nodegroups.keys()
 
 def node_get_path(self, nodeid):
     " get path of parent names "
@@ -798,7 +798,7 @@ def _updatenode(self, naddr):
 
         for prop in _nodestat.iter('property'):
             tprop = dict()
-            for k, v in prop.items():
+            for k, v in list(prop.items()):
                 tprop[k] = v
             if "id" in tprop:
                 self._nodedict[naddr]["property"][tprop["id"]].update(tprop)
@@ -927,7 +927,7 @@ def node_del(self, naddr):
 
     try:
         r = self._node_remove(node_id)
-    except IsySoapError, se:
+    except IsySoapError as se:
 
         # if error code is 501 then Node did not exist or was already deleted
         # this is messy and needs to change or be removed

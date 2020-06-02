@@ -12,9 +12,11 @@ from ISY.IsyExceptionClass import IsyPropertyError, IsyValueError, IsySoapError
 import sys
 if sys.hexversion < 0x3000000:
     import urllib2 as URL
-    from urllib2 import URLError, HTTPError
+    from urllib.error import URLError, HTTPError
 else:
     import urllib as URL
+    import urllib.parse
+    import urllib.request
 # import re
 from pprint import pprint
 import time
@@ -113,11 +115,11 @@ class IsyUtil(object):
         if ( noquote):
             xurl = self.baseurl + xmlpath
         else:
-            xurl = self.baseurl + URL.quote(xmlpath)
+            xurl = self.baseurl + URL.parse.quote(xmlpath)
         if self.debug & 0x02:
             print("_getXMLetree: " + xurl)
         # print("_getXMLetree : URL.Request")
-        req = URL.Request(xurl)
+        req = URL.request.Request(xurl)
         # print("_getXMLetree : self._opener.open ")
         # HTTPError
 
@@ -148,17 +150,17 @@ class IsyUtil(object):
                         # print "data = ", data,
                         #print "e.message = ", e.message
                         if (loop_count == 10): 
-                            print "Etree ParseError "
-                            print "e.message = ", e.message
+                            print("Etree ParseError ")
+                            print("e.message = ", e.message)
                             break
                         # raise
                 else:
-                    print "*** NO data returned from URL read of" + req
+                    print("*** NO data returned from URL read of" + req)
                     if (loop_count == 10): break
 
-            except URL.HTTPError, e:
+            except URL.HTTPError as e:
                 self.error_str = str("Reponse Code : {0} : {1}" ).format(e.code, xurl)
-                print "*** URL open error: " + self.error_str
+                print("*** URL open error: " + self.error_str)
                 if (loop_count == 10): break
 
             #
@@ -166,7 +168,7 @@ class IsyUtil(object):
             #
             time.sleep(5)
 
-        if (loop_count != 0): print "*** FAILING with loop count " + str(loop_count) + " on " + xurl + " ***"
+        if (loop_count != 0): print("*** FAILING with loop count " + str(loop_count) + " on " + xurl + " ***")
         if (loop_count == 0):
             self.error_str = ""
             return et
@@ -176,7 +178,7 @@ class IsyUtil(object):
     def _gensoap(self, cmd, **kwargs):
 
         if self.debug & 0x200:
-            print "len kwargs = ", len(kwargs), kwargs
+            print("len kwargs = ", len(kwargs), kwargs)
         if len(kwargs) == 0:
             cmdsoap = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" \
                 + "<e:Envelope><s:Body>" \
@@ -189,7 +191,7 @@ class IsyUtil(object):
                 + "<u:{0!s} ".format(cmd) \
                 + "xmlns:u=\"urn:udi-com:service:X_Insteon_Lighting_Service:1\">"
 
-            for k, v in kwargs.items():
+            for k, v in list(kwargs.items()):
                 cmdsoap += "<{0}>{1!s}</{0}>".format(k, v)
 
             cmdsoap += "</u:{0!s}>".format(cmd) \
@@ -209,14 +211,14 @@ class IsyUtil(object):
              raise IsyValueError("SOAP Method name missing")
 
         if self.debug & 0x02:
-            print "sendcomm : ", cmd
+            print("sendcomm : ", cmd)
 
         soap_cmd = self._gensoap(cmd, **kwargs)
 
         xurl = self.baseurl + "/services"
         if self.debug & 0x02:
-            print "xurl = ", xurl
-            print "soap_cmd = ", soap_cmd
+            print("xurl = ", xurl)
+            print("soap_cmd = ", soap_cmd)
 
         req = URL.Request(xurl, soap_cmd, {'Content-Type': 'application/xml; charset="utf-8"'})
 
@@ -228,7 +230,7 @@ class IsyUtil(object):
                 print("res.getcode() ", res.getcode(), len(data))
                 print("data ", data)
             res.close()
-        except URL.HTTPError, e:
+        except URL.HTTPError as e:
 
             self.error_str = str("Reponse Code : {0} : {1} {2}" ).format(e.code, xurl, cmd)
             if (( cmd == "DiscoverNodes" and e.code == 803 )
@@ -238,21 +240,21 @@ class IsyUtil(object):
 
 
                 if self.debug & 0x02:
-                    print "spacial case : {0} : {1}".format(cmd, e.code)
-                    print "e.code = ", e.code
-                    print "e.msg = ", e.msg
-                    print "e.hdrs = ", e.hdrs
-                    print "e.filename = ", e.filename
-                    print "e.code = ", type(e.code), e.code
-                    print "\n"
+                    print("spacial case : {0} : {1}".format(cmd, e.code))
+                    print("e.code = ", e.code)
+                    print("e.msg = ", e.msg)
+                    print("e.hdrs = ", e.hdrs)
+                    print("e.filename = ", e.filename)
+                    print("e.code = ", type(e.code), e.code)
+                    print("\n")
 
                 return e.read()
 
             if self.debug & 0x202:
-                print "e.code = ", type(e.code), e.code
+                print("e.code = ", type(e.code), e.code)
                 # print "e.read = ", e.read()
-                print "e = ", e
-                print "data = ", data
+                print("e = ", e)
+                print("data = ", data)
 
             mess = "{!s} : {!s} : {!s}".format(cmd, kwargs, e.code)
             # This a messy and should change
@@ -260,7 +262,7 @@ class IsyUtil(object):
         else:
             if len(self.error_str) : self.error_str = ""
             if self.debug & 0x200:
-                print data
+                print(data)
             return data
 
 
@@ -300,7 +302,7 @@ class IsyUtil(object):
         """
 
         if self.debug & 0x01:
-            print "sendfile : ", self.__class__.__name__
+            print("sendfile : ", self.__class__.__name__)
 
         if filename[0] != '/':
             filename = "/USER/WEB/" + filename
@@ -312,13 +314,13 @@ class IsyUtil(object):
                 src = filename
 
             if self.debug & 0x20:
-                print "using file {!s} as data src".format(src)
+                print("using file {!s} as data src".format(src))
 
             with open(src, 'r') as content_file:
                 data = content_file.read()
         else:
             if self.debug & 0x20:
-                print "using provided data as data src"
+                print("using provided data as data src")
 
         self._sendfile(filename=filename, data=data, load="n")
 
@@ -339,7 +341,7 @@ class IsyUtil(object):
             responce = res.read()
             # print("res.getcode() ", res.getcode(), len(responce))
             res.close()
-        except URL.HTTPError, e:
+        except URL.HTTPError as e:
             # print "e.read : ", e.read()
             mess = "{!s} : {!s} : {!s}".format("/file/upload", filename, e.code)
             raise IsySoapError(mess, httperr=e)
@@ -513,7 +515,7 @@ class IsySubClass(IsyUtil):
 
     def __del__(self):
         if self.debug & 0x80:
-            print "__del__ ", self.__repr__()
+            print("__del__ ", self.__repr__())
         if hasattr(self, "_mydict"):
             self._mydict.clear()
 
@@ -558,7 +560,7 @@ class IsySubClass(IsyUtil):
 #            print("attr =", attr, self.address)
 #           print("self type = ", type(self))
 #           pprint(self._mydict)
-            raise(AttributeError, attr)
+            raise AttributeError
 
 
     # This allows for

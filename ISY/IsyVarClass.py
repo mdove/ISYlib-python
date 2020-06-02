@@ -121,7 +121,7 @@ class IsyVar(IsySubClass):
     # Type conversion
     def __str__(self): return str(self._mydict["val"])
     # Type conversion
-    def __long__(self): return long(self._mydict["val"])
+    def __long__(self): return int(self._mydict["val"])
     # Type conversion
     def __float__(self): return float(self._mydict["val"])
     # Type conversion

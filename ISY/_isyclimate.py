@@ -31,7 +31,7 @@ def load_clim(self):
     # Isy._printXML(self.climateinfo)
 
     for cl in clim_tree.iter("climate"):
-        for k, v in cl.items():
+        for k, v in list(cl.items()):
             self.climateinfo[k] = v
         for ce in list(cl):
             self.climateinfo[ce.tag] = ce.text
@@ -62,7 +62,7 @@ def clim_iter(self):
     """
     if not self.climateinfo:
         self.load_clim()
-    k = self.climateinfo.keys()
+    k = list(self.climateinfo.keys())
     for p in k:
         yield self.climateinfo[p]
 
