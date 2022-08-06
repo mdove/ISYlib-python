@@ -555,7 +555,7 @@ class ISYEventConnection(object):
             + "</u:Subscribe></s:Body></s:Envelope>"
             # "\r\n\r\n"
 
-        base64pass = base64.encodestring(('%s:%s' % (self.authtuple[1], self.authtuple[2])).encode())[:-1].decode()
+        base64pass = base64.encodebytes(('%s:%s' % (self.authtuple[1], self.authtuple[2])).encode())[:-1].decode()
         post_head = "POST /services HTTP/1.1\r\n" \
             + "Host: {0}:80\r\n".format(self.authtuple[0]) \
             + "Authorization: Basic {0}\r\n".format(base64pass) \
