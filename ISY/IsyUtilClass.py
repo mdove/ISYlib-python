@@ -158,7 +158,7 @@ class IsyUtil(object):
                     print("*** NO data returned from URL read of" + req)
                     if (loop_count == 10): break
 
-            except URL.HTTPError as e:
+            except Exception as e:
                 self.error_str = str("Reponse Code : {0} : {1}" ).format(e.code, xurl)
                 print("*** URL open error: " + self.error_str)
                 if (loop_count == 10): break
