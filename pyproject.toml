@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "isylib-python"
+version = "0.1.0"
+description = "Python interface for ISY994 devices"
+authors = [
+  { name = "Mike Dove", email = "mdove@mdove.com" }
+]
+readme = "README.md"
+requires-python = ">=3.7"
+license = { text = "BSD-3-Clause" }
+dependencies = []
+
+[project.scripts]
+# CLI tools from isytools/ directory
+isy_showevents = "isytools.isy_showevents:main"
+isy_var = "isytools.isy_var:main"
+isy_web = "isytools.isy_web:main"
+isy_progs = "isytools.isy_progs:main"
+isy_nodes = "isytools.isy_nodes:main"
+isy_net_wol = "isytools.isy_net_wol:main"
+isy_net_res = "isytools.isy_net_res:main"
+isy_nestset = "isytools.isy_nestset:main"
+isy_manage_node = "isytools.isy_manage_node:main"
+isy_log = "isytools.isy_log:main"
+isy_find = "isytools.isy_find:main"
+isy_fauxmo = "isytools.isy_fauxmo:main"
+isy_backup = "isytools.isy_backup:main"
+isy_audit_x10_use = "isytools.isy_audit_x10_use:main"
+isy_audit_pgm_var = "isytools.isy_audit_pgm_var:main"
+
+[tool.setuptools]
+packages = ["ISY", "isytools"]
+
+[tool.setuptools.package-dir]
+ISY = "ISY"
+isytools = "isytools"
+
