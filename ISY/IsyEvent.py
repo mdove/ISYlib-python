@@ -14,10 +14,7 @@ __license__ = "BSD"
 import time
 
 import sys
-# import os
-# import traceback
 import warnings
-# import re
 import base64
 import socket
 import select
@@ -27,7 +24,7 @@ import xml.etree.ElementTree as ET
 
 from ISY.IsyEventData import EVENT_CTRL
 from ISY._isy_printevent import _print_event
-import collections
+import collections.abc
 
 try:
     import fcntl
@@ -55,7 +52,7 @@ class ISYEvent(object):
 
         print("_print_event", _print_event)
         if self.process_func:
-            assert isinstance(self.process_func, collections.Callable), \
+            assert isinstance(self.process_func, collections.abc.Callable), \
                     "process_func Arg must me callable"
 
         addr = kwargs.get("addr", None)
@@ -73,7 +70,7 @@ class ISYEvent(object):
         # if self.debug & 0x01:
             print("set_process_func", func)
             self.process_func = func
-            assert isinstance(self.process_func, collections.Callable), \
+            assert isinstance(self.process_func, collections.abc.Callable), \
                     "process_func Arg must me callable"
         else:
             self.process_func = _print_event
