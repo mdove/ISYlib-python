@@ -1757,7 +1757,7 @@ class Isy(IsyUtil):
     ##
     ## X10 Code
     ##
-    _x10re = re.compile('([a-pA-P]\d{,2)')
+    _x10re = re.compile(r'([a-pA-P]\d{,2)')
     _x10comm = { 'alllightsoff' : 1,
         'status off' : 2,
         'on' : 3,
@@ -1794,7 +1794,7 @@ class Isy(IsyUtil):
         xcmd = self._get_x10_comm_id(str(cmd))
         unit = unit.strip().upper()
 
-        if not re.match("[A-P]\d{,2}", unit):
+        if not re.match(r"[A-P]\d{,2}", unit):
             raise IsyValueError("bad x10 unit name : " + unit)
 
 #        print("X10 sent : " + str(unit) + " : " + str(xcmd))
